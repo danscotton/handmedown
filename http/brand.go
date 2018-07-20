@@ -32,13 +32,15 @@ func (h *brandHandler) handlePostBrand(w http.ResponseWriter, r *http.Request) {
 
 	// decode body
 	if err := json.NewDecoder(r.Body).Decode(&brand); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		invalidRequest(w, r, err)
 		return
 	}
 
 	// validate
 	if err := brand.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&errorResponse{err.Error()})
 		return
 	}
 

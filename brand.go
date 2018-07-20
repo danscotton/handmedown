@@ -11,7 +11,7 @@ const (
 
 type Brand struct {
 	ID   bson.ObjectId `bson:"_id,omitempty" json:"id"`
-	Name string        `bson:"name" json:"name" valid:"alphanum,required"`
+	Name string        `bson:"name" json:"name" valid:"alphanum,required~name is required"`
 }
 
 func (b *Brand) Validate() error {
