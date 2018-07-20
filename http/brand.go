@@ -65,17 +65,13 @@ func (h *brandHandler) handlePostBrand(w http.ResponseWriter, r *http.Request) {
 func (h *brandHandler) handleGetBrands(w http.ResponseWriter, r *http.Request) {
 	brands, err := h.brandService.FindBrands()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		Error(w, "unable to retrieve brands", http.StatusInternalServerError)
 		return
 	}
 
-	response, _ := json.Marshal(struct {
-		Brands []*handmedown.Brand `json:"brands"`
-	}{
-		Brands: brands,
-	})
+	Respond(w).With(http.StatusOK, brandsResponse{brands})
+}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(response)
+type brandsResponse struct {
+	Brands []*handmedown.Brand `json:"brands"`
 }
