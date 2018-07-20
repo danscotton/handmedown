@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/asaskevich/govalidator"
+	"github.com/globalsign/mgo/bson"
 
 	"github.com/danscotton/handmedown"
 	"github.com/go-chi/chi"
@@ -37,10 +37,13 @@ func (h *brandHandler) handlePostBrand(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// validate
-	if _, err := govalidator.ValidateStruct(&brand); err != nil {
+	if err := brand.Validate(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// generate id
+	brand.ID = bson.NewObjectId()
 
 	// create brand
 	if err := h.brandService.CreateBrand(&brand); err != nil {

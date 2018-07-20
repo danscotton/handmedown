@@ -14,6 +14,10 @@ func NewBrandService(db *DB) (*BrandService, error) {
 	index := mgo.Index{
 		Key:    []string{"name"},
 		Unique: true,
+		Collation: &mgo.Collation{
+			Locale:   "en",
+			Strength: 2, // case-insensitive
+		},
 	}
 	if err := db.session.DB("handmedown").C("brand").EnsureIndex(index); err != nil {
 		return nil, err
