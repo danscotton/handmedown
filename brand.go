@@ -5,7 +5,7 @@ const (
 )
 
 type Brand struct {
-	Name string `bson:"name"`
+	Name string `bson:"name" json:"name"`
 }
 
 type BrandService interface {
