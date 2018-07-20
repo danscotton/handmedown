@@ -9,8 +9,12 @@ type errorResponse struct {
 	Err string `json:"error,omitempty"`
 }
 
-func invalidRequest(w http.ResponseWriter, r *http.Request, err error) {
+func Error(w http.ResponseWriter, err string, code int) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusBadRequest)
-	json.NewEncoder(w).Encode(&errorResponse{"invalid request"})
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(&errorResponse{err})
+}
+
+func InvalidRequestError(w http.ResponseWriter) {
+	Error(w, "invalid request", http.StatusBadRequest)
 }

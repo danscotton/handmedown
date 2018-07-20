@@ -32,15 +32,13 @@ func (h *brandHandler) handlePostBrand(w http.ResponseWriter, r *http.Request) {
 
 	// decode body
 	if err := json.NewDecoder(r.Body).Decode(&brand); err != nil {
-		invalidRequest(w, r, err)
+		InvalidRequestError(w)
 		return
 	}
 
 	// validate
 	if err := brand.Validate(); err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(&errorResponse{err.Error()})
+		Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -51,21 +49,17 @@ func (h *brandHandler) handlePostBrand(w http.ResponseWriter, r *http.Request) {
 	if err := h.brandService.CreateBrand(&brand); err != nil {
 		switch err {
 		case handmedown.ErrBrandAlreadyExists:
-			http.Error(w, err.Error(), http.StatusConflict)
+			Error(w, err.Error(), http.StatusConflict)
 			return
 
 		default:
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	}
 
 	// respond
-	response, _ := json.Marshal(&brand)
-
-	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(response)
+	Respond(w).With(http.StatusCreated, &brand)
 }
 
 func (h *brandHandler) handleGetBrands(w http.ResponseWriter, r *http.Request) {
