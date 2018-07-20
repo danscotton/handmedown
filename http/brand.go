@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/asaskevich/govalidator"
+
 	"github.com/danscotton/handmedown"
 	"github.com/go-chi/chi"
 )
@@ -16,12 +18,45 @@ type brandHandler struct {
 
 func newBrandHandler() *brandHandler {
 	h := &brandHandler{router: chi.NewRouter()}
+	h.router.Post("/", h.handlePostBrand)
 	h.router.Get("/", h.handleGetBrands)
 	return h
 }
 
 func (h *brandHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.router.ServeHTTP(w, r)
+}
+
+func (h *brandHandler) handlePostBrand(w http.ResponseWriter, r *http.Request) {
+	brand := handmedown.Brand{}
+
+	// decode body
+	if err := json.NewDecoder(r.Body).Decode(&brand); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	// validate
+	if _, err := govalidator.ValidateStruct(&brand); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	// create brand
+	if err := h.brandService.CreateBrand(&brand); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	// respond
+	response, _ := json.Marshal(&brand)
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(response)
 }
 
 func (h *brandHandler) handleGetBrands(w http.ResponseWriter, r *http.Request) {
