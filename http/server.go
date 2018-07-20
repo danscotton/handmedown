@@ -17,7 +17,7 @@ type Server struct {
 	BrandService handmedown.BrandService
 
 	// server config
-	Port string
+	Addr string
 }
 
 func NewServer() *Server {
@@ -25,7 +25,7 @@ func NewServer() *Server {
 }
 
 func (s *Server) Open() error {
-	ln, err := net.Listen("tcp", s.Port)
+	ln, err := net.Listen("tcp", s.Addr)
 	if err != nil {
 		return err
 	}

@@ -38,7 +38,7 @@ func (bs *BrandService) CreateBrand(brand *handmedown.Brand) error {
 }
 
 func (bs *BrandService) FindBrands() ([]*handmedown.Brand, error) {
-	var brands []*handmedown.Brand
+	brands := make([]*handmedown.Brand, 0)
 
 	if err := bs.db.session.DB("handmedown").C("brand").Find(bson.M{}).All(&brands); err != nil {
 		return nil, err

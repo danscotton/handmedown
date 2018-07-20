@@ -50,7 +50,7 @@ func (m *Main) Run() error {
 
 	// set up http server
 	server := http.NewServer()
-	server.Port = m.Config.HTTP.Port
+	server.Addr = m.Config.HTTP.Addr
 	server.BrandService = brandService
 	if err := server.Open(); err != nil {
 		return err
@@ -74,7 +74,7 @@ type Config struct {
 		Url string
 	}
 	HTTP struct {
-		Port string
+		Addr string
 	}
 }
 
@@ -87,6 +87,6 @@ func NewMain() *Main {
 func DefaultConfig() Config {
 	var c Config
 	c.Database.Url = "localhost"
-	c.HTTP.Port = ":3010"
+	c.HTTP.Addr = "localhost:3010"
 	return c
 }
