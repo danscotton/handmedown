@@ -32,23 +32,27 @@ func (h *brandHandler) handlePostBrand(w http.ResponseWriter, r *http.Request) {
 
 	// decode body
 	if err := json.NewDecoder(r.Body).Decode(&brand); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// validate
 	if _, err := govalidator.ValidateStruct(&brand); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// create brand
 	if err := h.brandService.CreateBrand(&brand); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
+		switch err {
+		case handmedown.ErrBrandAlreadyExists:
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+
+		default:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// respond
